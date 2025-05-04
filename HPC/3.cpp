@@ -1,41 +1,162 @@
-#include<bits/stdc++.h>
-#include<omp.h>
+#include <iostream>
+#include <vector>
+#include <omp.h>
 
 using namespace std;
 
-int sum_parallel(vector<int>arr){
-    int n = arr.size(), sum = 0;
+long long arr_max(vector<long long> arr)
+{
+    long long maximum = arr[0];
+    double start = omp_get_wtime();
 
-    #pragma omp parallel for reduction(+:sum)
-    for(int i=0; i<n; i++){
+#pragma omp parallel for reduction(max : maximum)
+    for (long long i = 0; i < arr.size(); i++)
+    {
+        maximum = max(maximum, arr[i]);
+    };
+    double end = omp_get_wtime();
+    cout << "Parallel Max Reduction Time: " << end - start << endl;
+    cout << "Max: " << maximum;
+    cout << endl;
+
+    return maximum;
+}
+long long arr_max_seq(vector<long long> arr)
+{
+    long long maximum = arr[0];
+    double start = omp_get_wtime();
+
+    for (long long i = 0; i < arr.size(); i++)
+    {
+        maximum = max(maximum, arr[i]);
+    };
+    double end = omp_get_wtime();
+    cout << "Seq Max Reduction Time: " << end - start << endl;
+    cout << "Max: " << maximum;
+    cout << endl;
+
+    return maximum;
+}
+long long arr_min(vector<long long> arr)
+{
+    long long minimum = arr[0];
+    double start = omp_get_wtime();
+
+#pragma omp parallel for reduction(min : minimum)
+    for (long long i = 0; i < arr.size(); i++)
+    {
+        minimum = min(minimum, arr[i]);
+    };
+    double end = omp_get_wtime();
+    cout << "Parallel Min Reduction Time: " << end - start << endl;
+    cout << "Min: " << minimum;
+    cout << endl;
+    return minimum;
+}
+long long arr_min_seq(vector<long long> arr)
+{
+    long long minimum = arr[0];
+    double start = omp_get_wtime();
+    for (long long i = 0; i < arr.size(); i++)
+    {
+        minimum = min(minimum, arr[i]);
+    };
+    double end = omp_get_wtime();
+    cout << "Seq Min Reduction Time: " << end - start << endl;
+    cout << "Min: " << minimum;
+    cout << endl;
+
+    return minimum;
+}
+
+long long arr_sum(vector<long long> arr)
+{
+    long long sum = 0;
+    double start = omp_get_wtime();
+#pragma omp parallel for reduction(+ : sum)
+    for (long long i = 0; i < arr.size(); i++)
+    {
         sum += arr[i];
     }
+    double end = omp_get_wtime();
+    cout << "Sum Reduction Time: " << end - start << endl;
+    cout << "Sum: " << sum;
+    cout << endl;
+    return sum;
+}
+long long arr_sum_seq(vector<long long> arr)
+{
+    long long sum = 0;
+    double start = omp_get_wtime();
+    for (long long i = 0; i < arr.size(); i++)
+    {
+        sum += arr[i];
+    }
+    double end = omp_get_wtime();
+    cout << "Seq Sum Reduction Time: " << end - start << endl;
+    cout << "Sum: " << sum;
+    cout << endl;
     return sum;
 }
 
-int min_parallel(vector<int>arr){
-    int n = arr.size(), min_val = INT_MAX;
-
-    #pragma omp parallel for reduction(min:min_val)
-    for (int i = 0; i < n; i++){
-        min_val = min(min_val, arr[i]);
+double arr_avg(vector<long long> arr)
+{
+    long long sum = 0;
+    double start = omp_get_wtime();
+#pragma omp parallel for reduction(+ : sum)
+    for (long long i = 0; i < arr.size(); i++)
+    {
+        sum += arr[i];
     }
-    return min_val;
+    double avg = sum / arr.size();
+    double end = omp_get_wtime();
+    cout << "Parallel Avg Reduction Time: " << end - start << endl;
+    cout << "Avg: " << avg;
+    cout << endl;
+    return avg;
 }
 
-int max_parallel(vector<int>arr){
-    int n = arr.size(), max_val = INT_MIN;
-
-    #pragma omp parallel for reduction(max: max_val)
-    for (int i = 0; i < n; i++){
-        max_val = max(max_val, arr[i]);
+long long arr_avg_seq(vector<long long> arr)
+{
+    long long sum = 0;
+    double start = omp_get_wtime();
+    for (long long i = 0; i < arr.size(); i++)
+    {
+        sum += arr[i];
     }
-    return max_val;
+    double avg = sum / arr.size();
+    double end = omp_get_wtime();
+    cout << "Sequential Avg Reduction Time: " << end - start << endl;
+    cout << "Avg: " << avg;
+    cout << endl;
+    return avg;
 }
 
-int main(){
-    vector<int>v = {1,4,2,3,7,5,9,6,12,8,14,12,15,16,6,1,7,17,18,8,1,19};
-    printf("Sum: %d \n", sum_parallel(v));
-    printf("Min: %d \n", min_parallel(v));
-    printf("Max: %d \n", max_parallel(v));
+int main()
+{
+    long long N = 90000000;
+    vector<long long> arr = {1, 2, 4, 5, 7, 2, 6, 0};
+
+    for (long long i = 0; i < N; i++)
+    {
+        arr.push_back(rand() % 1000);
+    }
+
+    arr_max(arr);
+    arr_max_seq(arr);
+    cout << endl;
+
+    arr_min(arr);
+    arr_min_seq(arr);
+    cout << endl;
+
+    arr_sum(arr);
+    arr_sum_seq(arr);
+    cout << endl;
+
+    arr_avg(arr);
+    arr_avg_seq(arr);
+    cout << endl;
+
+    return 0;
 }
